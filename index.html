@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoonChimp! Presale</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="stars-container">
+        <div id="stars"></div>
+        <div id="stars2"></div>
+        <div id="stars3"></div>
+    </div>
+
+    <div class="container">
+        <!-- Header Section -->
+        <header class="header">
+            <div class="logo-container">
+                <img src="assets/moonchimp-logo.png" alt="MoonChimp Logo" class="logo">
+            </div>
+            <div class="wallet-connection">
+                <button id="wallet-connect-btn" class="wallet-btn">Connect Wallet</button>
+                <div id="wallet-status" class="wallet-status hidden">
+                    <span id="wallet-address"></span>
+                    <button id="disconnect-btn" class="disconnect-btn">Disconnect</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-content">
+                <h1 class="hero-title">MoonChimp! Presale is Live</h1>
+                <p class="hero-subtitle">Join the cosmic adventure and be among the first to own MoonChimp tokens!</p>
+            </div>
+        </section>
+
+        <!-- Presale Stats -->
+        <section class="presale-stats">
+            <div class="stat-card">
+                <h3>Current Phase</h3>
+                <p id="current-phase">Phase 1</p>
+            </div>
+            <div class="stat-card">
+                <h3>Token Price</h3>
+                <p id="token-price">0.007 SOL</p>
+            </div>
+            <div class="stat-card">
+                <h3>Tokens Sold</h3>
+                <p id="tokens-sold">35/100</p>
+            </div>
+            <div class="stat-card">
+                <h3>Time Remaining</h3>
+                <p id="time-remaining">3 Days</p>
+            </div>
+        </section>
+
+        <!-- Presale Phases -->
+        <section class="presale-phases">
+            <h2 class="section-title">Presale Phases</h2>
+            <div class="phases-container">
+                <div class="phase-card active">
+                    <div class="phase-header">
+                        <h3>Phase 1</h3>
+                        <span class="phase-badge">Active</span>
+                    </div>
+                    <div class="phase-price">0.007 SOL</div>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: 35%;"></div>
+                    </div>
+                    <div class="phase-stats">35/100 tokens sold</div>
+                </div>
+                <div class="phase-card">
+                    <div class="phase-header">
+                        <h3>Phase 2</h3>
+                        <span class="phase-badge">Coming Soon</span>
+                    </div>
+                    <div class="phase-price">0.008 SOL</div>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: 0%;"></div>
+                    </div>
+                    <div class="phase-stats">0/150 tokens sold</div>
+                </div>
+                <div class="phase-card">
+                    <div class="phase-header">
+                        <h3>Phase 3</h3>
+                        <span class="phase-badge">Coming Soon</span>
+                    </div>
+                    <div class="phase-price">0.009 SOL</div>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: 0%;"></div>
+                    </div>
+                    <div class="phase-stats">0/200 tokens sold</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Purchase Section -->
+        <section class="purchase-section" id="purchase-section">
+            <h2 class="section-title">Purchase MoonChimp Tokens</h2>
+            <div class="purchase-container">
+                <div class="purchase-form">
+                    <div class="form-group">
+                        <label for="token-amount">Amount of tokens to purchase:</label>
+                        <input type="number" id="token-amount" min="1" value="10">
+                    </div>
+                    <div class="token-calculation">
+                        <div class="calc-row">
+                            <span>Price per token:</span>
+                            <span class="highlight-text">0.007 SOL</span>
+                        </div>
+                        <div class="calc-row total">
+                            <span>Total cost:</span>
+                            <span class="highlight-text" id="total-cost">0.070 SOL</span>
+                        </div>
+                    </div>
+                    <button id="buy-btn" class="buy-btn">Buy Tokens</button>
+                </div>
+                <div class="connect-prompt" id="connect-prompt">
+                    <p>Connect your wallet to participate in the presale</p>
+                    <button id="wallet-connect-prompt-btn" class="wallet-btn">Connect Wallet</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features-section">
+            <h2 class="section-title">Why MoonChimp?</h2>
+            <div class="features-container">
+                <div class="feature-card">
+                    <div class="feature-icon">??</div>
+                    <h3>Cosmic Game Experience</h3>
+                    <p>Join the lunar adventure with MoonChimp and experience an immersive crypto game that rewards players with real value.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">??</div>
+                    <h3>Earn While You Play</h3>
+                    <p>Mine MoonCoins, upgrade your mining power, and participate in games to earn more tokens that can be traded on exchanges.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Roadmap -->
+        <section class="roadmap-section">
+            <h2 class="section-title">MoonChimp Roadmap</h2>
+            <div class="roadmap-container">
+                <div class="roadmap-item">
+                    <div class="roadmap-point">1</div>
+                    <div class="roadmap-content">
+                        <h3>Token Presale</h3>
+                        <p>Initial token offering through three phases with increasing token value</p>
+                    </div>
+                </div>
+                <div class="roadmap-item">
+                    <div class="roadmap-point">2</div>
+                    <div class="roadmap-content">
+                        <h3>Game Launch</h3>
+                        <p>Release of the MoonChimp game with mining and gameplay features</p>
+                    </div>
+                </div>
+                <div class="roadmap-item">
+                    <div class="roadmap-point">3</div>
+                    <div class="roadmap-content">
+                        <h3>Exchange Listing</h3>
+                        <p>MoonChimp token listed on major exchanges</p>
+                    </div>
+                </div>
+                <div class="roadmap-item">
+                    <div class="roadmap-point">4</div>
+                    <div class="roadmap-content">
+                        <h3>Ecosystem Expansion</h3>
+                        <p>New features, partnerships, and growth of the MoonChimp community</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>© 2025 MoonChimp! - All Rights Reserved</p>
+            <div class="social-links">
+                <a href="#" class="social-link">Twitter</a>
+                <a href="#" class="social-link">Telegram</a>
+                <a href="#" class="social-link">Discord</a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Modal for transaction status -->
+    <div id="transaction-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <div id="transaction-status"></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@walletconnect/ethereum-provider@2.10.0/dist/umd/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.89.0/lib/index.iife.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
