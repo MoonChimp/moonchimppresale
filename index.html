@@ -6,7 +6,7 @@
     <title>MoonChimp Token Presale</title>
     
     <!-- Solana Web3.js -->
-    <script src="https://unpkg.com/@solana/web3.js@1.87.6/lib/index.iife.min.js"></script>
+    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
     
     <style>
         * {
@@ -139,13 +139,9 @@
         .progress-bar {
             background: linear-gradient(90deg, #FFD700, #FFA500);
             height: 100%;
-            width: 35%;
+            width: 0%;
             transition: width 1s ease;
             position: relative;
-        }
-        
-        .active.progress-bar {
-            animation: none;
         }
         
         .progress-text {
@@ -313,7 +309,7 @@
             <!-- Progress Bar -->
             <div class="progress-container">
                 <div class="progress-bar-bg">
-                    <div class="progress-bar active">
+                    <div class="progress-bar active" style="width: 35%;">
                         <span class="progress-text" id="tokens-sold">3,500,000/10,000,000</span>
                     </div>
                 </div>
@@ -352,6 +348,414 @@
     </div>
     
     <!-- JavaScript Code -->
-    <script src="app.js"></script>
+    <script>
+        // MoonChimp Token Presale Interface - Fixed Solana Version
+        // This code manages a cryptocurrency presale interface with Solana wallet connection and token purchase functionality
+
+        // Wait for the DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configuration
+            const TOKEN_PRICE = 0.007; // Price in SOL per token
+            const TOKEN_MINT = "YOUR_TOKEN_MINT_ADDRESS"; // Replace with actual token mint address
+            const RECEIVER_WALLET = "YOUR_RECEIVER_WALLET_ADDRESS"; // Replace with actual wallet to receive payments
+            
+            // Core application state
+            let solanaConnection = null;    // Connection to Solana blockchain
+            let publicKey = null;          // User's wallet public key
+            let walletConnected = false;   // Wallet connection status
+            let provider = null;           // Solana wallet provider
+            
+            // UI Elements References
+            const walletConnectBtn = document.getElementById('wallet-connect-btn');
+            const walletConnectPromptBtn = document.getElementById('wallet-connect-prompt-btn');
+            const walletStatus = document.getElementById('wallet-status');
+            const walletAddress = document.getElementById('wallet-address');
+            const disconnectBtn = document.getElementById('disconnect-btn');
+            const connectPrompt = document.getElementById('connect-prompt');
+            const purchaseForm = document.querySelector('.purchase-form');
+            const tokenAmountInput = document.getElementById('token-amount');
+            const totalCostDisplay = document.getElementById('total-cost');
+            const buyBtn = document.getElementById('buy-btn');
+            const transactionModal = document.getElementById('transaction-modal');
+            const closeModalBtn = document.querySelector('.close-btn');
+            const transactionStatus = document.getElementById('transaction-status');
+            
+            // Initialize Solana connection
+            function initializeSolana() {
+                try {
+                    // Connect to Solana mainnet-beta (change to 'devnet' for testing)
+                    solanaConnection = new solanaWeb3.Connection(
+                        solanaWeb3.clusterApiUrl('mainnet-beta'),
+                        'confirmed'
+                    );
+                    console.log('Connected to Solana mainnet');
+                } catch (error) {
+                    console.error('Failed to connect to Solana network:', error);
+                    showErrorMessage('Failed to connect to Solana network');
+                }
+            }
+            
+            // Check if Solana wallet is available
+            function getSolanaProvider() {
+                if ('solana' in window) {
+                    const provider = window.solana;
+                    if (provider.isPhantom) {
+                        return provider;
+                    }
+                }
+                return null;
+            }
+            
+            // Connect wallet using Solana wallet adapter
+            async function connectWallet() {
+                try {
+                    provider = getSolanaProvider();
+                    
+                    if (!provider) {
+                        // Prompt user to install Phantom wallet
+                        if (confirm('Phantom wallet not detected. Would you like to install it?')) {
+                            window.open('https://phantom.app/', '_blank');
+                        }
+                        showErrorMessage('Please install Phantom wallet to continue');
+                        return;
+                    }
+                    
+                    // Request connection
+                    const response = await provider.connect();
+                    publicKey = response.publicKey;
+                    walletConnected = true;
+                    
+                    // Update UI
+                    handleWalletConnection(publicKey.toString());
+                    
+                    // Listen for disconnect
+                    provider.on('disconnect', () => {
+                        disconnectWallet();
+                    });
+                    
+                    // Listen for account change
+                    provider.on('accountChanged', (publicKey) => {
+                        if (publicKey) {
+                            handleWalletConnection(publicKey.toString());
+                        } else {
+                            disconnectWallet();
+                        }
+                    });
+                    
+                } catch (error) {
+                    console.error('Error connecting wallet:', error);
+                    showErrorMessage('Failed to connect wallet');
+                }
+            }
+            
+            // Handle successful wallet connection
+            function handleWalletConnection(address) {
+                walletConnected = true;
+                
+                // Update UI to show connected state
+                walletConnectBtn.classList.add('hidden');
+                walletStatus.classList.remove('hidden');
+                
+                // Format and display wallet address
+                const formattedAddress = formatAddress(address);
+                walletAddress.textContent = formattedAddress;
+                
+                // Show purchase form when connected
+                if (connectPrompt && purchaseForm) {
+                    connectPrompt.classList.add('hidden');
+                    purchaseForm.classList.remove('hidden');
+                }
+                
+                console.log(`Connected to wallet: ${address}`);
+            }
+            
+            // Disconnect wallet
+            async function disconnectWallet() {
+                if (provider) {
+                    await provider.disconnect();
+                }
+                
+                publicKey = null;
+                walletConnected = false;
+                provider = null;
+                
+                // Update UI to show disconnected state
+                walletConnectBtn.classList.remove('hidden');
+                walletStatus.classList.add('hidden');
+                
+                // Hide purchase form when disconnected
+                if (connectPrompt && purchaseForm) {
+                    connectPrompt.classList.remove('hidden');
+                    purchaseForm.classList.add('hidden');
+                }
+                
+                console.log('Disconnected from wallet');
+            }
+            
+            // Format wallet address for display
+            function formatAddress(address) {
+                if (!address) return '';
+                return `${address.substring(0, 4)}...${address.substring(address.length - 4)}`;
+            }
+            
+            // Calculate total cost based on token amount
+            function calculateTotalCost() {
+                const amount = parseInt(tokenAmountInput.value) || 0;
+                const total = (amount * TOKEN_PRICE).toFixed(6);
+                totalCostDisplay.textContent = `${total} SOL`;
+            }
+            
+            // Buy tokens with actual Solana transaction
+            async function buyTokens() {
+                if (!walletConnected || !publicKey) {
+                    showErrorMessage('Please connect your wallet first');
+                    return;
+                }
+                
+                const amount = parseInt(tokenAmountInput.value) || 0;
+                if (amount <= 0) {
+                    showErrorMessage('Please enter a valid amount of tokens');
+                    return;
+                }
+                
+                const totalCost = amount * TOKEN_PRICE;
+                const lamports = totalCost * solanaWeb3.LAMPORTS_PER_SOL;
+                
+                // Show transaction modal
+                transactionModal.style.display = 'block';
+                transactionStatus.innerHTML = `
+                    <div class="loading-spinner"></div>
+                    <h3>Processing Transaction</h3>
+                    <p>Purchasing ${amount} MoonChimp tokens for ${totalCost.toFixed(6)} SOL</p>
+                    <p>Please confirm the transaction in your wallet...</p>
+                `;
+                
+                try {
+                    // Create transaction
+                    const transaction = new solanaWeb3.Transaction();
+                    
+                    // Add transfer instruction (payment for tokens)
+                    const transferInstruction = solanaWeb3.SystemProgram.transfer({
+                        fromPubkey: publicKey,
+                        toPubkey: new solanaWeb3.PublicKey(RECEIVER_WALLET),
+                        lamports: Math.round(lamports)
+                    });
+                    
+                    transaction.add(transferInstruction);
+                    
+                    // TODO: Add instruction to mint tokens to buyer
+                    // This would require your token program instruction
+                    
+                    // Set recent blockhash
+                    const { blockhash } = await solanaConnection.getLatestBlockhash();
+                    transaction.recentBlockhash = blockhash;
+                    transaction.feePayer = publicKey;
+                    
+                    // Sign and send transaction
+                    const signed = await provider.signTransaction(transaction);
+                    const txid = await solanaConnection.sendRawTransaction(signed.serialize());
+                    
+                    // Wait for confirmation
+                    await solanaConnection.confirmTransaction(txid, 'confirmed');
+                    
+                    // Show success message
+                    transactionStatus.innerHTML = `
+                        <div class="success-checkmark">✓</div>
+                        <h3>Transaction Successful!</h3>
+                        <p>You have successfully purchased ${amount} MoonChimp tokens for ${totalCost.toFixed(6)} SOL</p>
+                        <p>Transaction ID: <small>${txid}</small></p>
+                        <p>Tokens will be distributed to your wallet soon.</p>
+                    `;
+                    
+                    // Update UI (in production, fetch actual data from blockchain)
+                    updateTokensSold(amount);
+                    
+                } catch (error) {
+                    console.error('Transaction failed:', error);
+                    // Show error message
+                    transactionStatus.innerHTML = `
+                        <div class="error-x">✗</div>
+                        <h3>Transaction Failed</h3>
+                        <p>${error.message || 'There was an error processing your transaction.'}</p>
+                        <p>Please try again later.</p>
+                    `;
+                }
+            }
+            
+            // Update tokens sold display
+            function updateTokensSold(amountPurchased) {
+                setTimeout(() => {
+                    const tokensSoldElement = document.getElementById('tokens-sold');
+                    if (tokensSoldElement) {
+                        const parts = tokensSoldElement.textContent.split('/');
+                        const currentSold = parseInt(parts[0].replace(/,/g, ''));
+                        const total = parseInt(parts[1].replace(/,/g, ''));
+                        const newSold = currentSold + amountPurchased;
+                        
+                        // Format numbers with commas
+                        const formattedSold = newSold.toLocaleString();
+                        const formattedTotal = total.toLocaleString();
+                        tokensSoldElement.textContent = `${formattedSold}/${formattedTotal}`;
+                        
+                        // Update the progress bar
+                        const progressBar = document.querySelector('.progress-bar');
+                        if (progressBar) {
+                            const newWidth = (newSold / total) * 100;
+                            progressBar.style.width = `${newWidth}%`;
+                        }
+                    }
+                }, 2000);
+            }
+            
+            // Show error message to user
+            function showErrorMessage(message) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-message';
+                errorDiv.textContent = message;
+                document.body.appendChild(errorDiv);
+                
+                setTimeout(() => {
+                    errorDiv.remove();
+                }, 5000);
+            }
+            
+            // Close the transaction modal
+            function closeModal() {
+                transactionModal.style.display = 'none';
+            }
+            
+            // Event Listeners Setup
+            if (walletConnectBtn) {
+                walletConnectBtn.addEventListener('click', connectWallet);
+            }
+            
+            if (walletConnectPromptBtn) {
+                walletConnectPromptBtn.addEventListener('click', connectWallet);
+            }
+            
+            if (disconnectBtn) {
+                disconnectBtn.addEventListener('click', disconnectWallet);
+            }
+            
+            if (tokenAmountInput) {
+                tokenAmountInput.addEventListener('input', calculateTotalCost);
+            }
+            
+            if (buyBtn) {
+                buyBtn.addEventListener('click', buyTokens);
+            }
+            
+            if (closeModalBtn) {
+                closeModalBtn.addEventListener('click', closeModal);
+                
+                // Close modal when clicking outside of it
+                window.addEventListener('click', function(event) {
+                    if (event.target === transactionModal) {
+                        closeModal();
+                    }
+                });
+            }
+            
+            // Initialize application
+            initializeSolana();
+            
+            // Initial UI setup
+            if (connectPrompt && purchaseForm) {
+                connectPrompt.style.display = 'block';
+                purchaseForm.style.display = 'none';
+            }
+            
+            // Calculate initial total cost
+            calculateTotalCost();
+            
+            // Add dynamic CSS for loading spinner and status indicators
+            const style = document.createElement('style');
+            style.textContent = `
+                .loading-spinner {
+                    width: 50px;
+                    height: 50px;
+                    border: 5px solid rgba(255, 255, 255, 0.3);
+                    border-radius: 50%;
+                    border-top-color: #FFD700;
+                    animation: spin 1s ease-in-out infinite;
+                    margin: 0 auto;
+                }
+                
+                @keyframes spin {
+                    to { transform: rotate(360deg); }
+                }
+                
+                .success-checkmark {
+                    font-size: 50px;
+                    color: #4CAF50;
+                }
+                
+                .error-x {
+                    font-size: 50px;
+                    color: #e63946;
+                }
+                
+                #transaction-modal small {
+                    word-break: break-all;
+                    font-size: 0.8em;
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Countdown Timer Functionality
+            const countdownDate = new Date("May 31, 2025 00:00:00").getTime();
+            
+            function updateCountdown() {
+                const now = new Date().getTime();
+                const distance = countdownDate - now;
+                
+                if (distance < 0) {
+                    clearInterval(countdownInterval);
+                    document.getElementById("time-remaining").textContent = "ENDED";
+                    return;
+                }
+                
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+                // Update display with full countdown
+                const timeRemaining = document.getElementById("time-remaining");
+                if (timeRemaining) {
+                    timeRemaining.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+                }
+            }
+            
+            // Update countdown every second
+            const countdownInterval = setInterval(updateCountdown, 1000);
+            updateCountdown(); // Initial call
+        }); {
+                    timeRemaining.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+                }
+            }
+            
+            // Update countdown every second
+            const countdownInterval = setInterval(updateCountdown, 1000);
+            updateCountdown(); // Initial call
+            
+            // Check wallet connection on page load
+            window.addEventListener('load', async () => {
+                const provider = getSolanaProvider();
+                if (provider) {
+                    try {
+                        const response = await provider.connect({ onlyIfTrusted: true });
+                        if (response.publicKey) {
+                            publicKey = response.publicKey;
+                            handleWalletConnection(publicKey.toString());
+                        }
+                    } catch (error) {
+                        // User hasn't previously connected
+                        console.log('No previous connection found');
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 </html>
