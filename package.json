@@ -1,0 +1,41 @@
+{
+  "name": "moonchimp-presale",
+  "version": "1.0.0",
+  "description": "MoonChimp cryptocurrency presale website",
+  "main": "index.html",
+  "scripts": {
+    "start": "live-server --port=3000",
+    "dev": "live-server --port=3000 --watch=*.html,*.css,*.js,assets/**/*",
+    "build": "echo 'No build process required for static site'",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "cryptocurrency",
+    "presale",
+    "moonchimp",
+    "solana",
+    "web3",
+    "blockchain"
+  ],
+  "author": "MoonChimp Team",
+  "license": "MIT",
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  },
+  "dependencies": {
+    "@solana/web3.js": "^1.89.0",
+    "@walletconnect/ethereum-provider": "^2.10.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/moonchimp-presale"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/moonchimp-presale/issues"
+  },
+  "homepage": "https://moonchimp.io",
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  }
+}
