@@ -1,27 +1,19 @@
 # Netlify Configuration File for MoonChimp Presale
 
 [build]
-  # Leave base directory empty or use "."
+  # Base directory - leave empty to use root
   base = ""
   
-  # Since this is a static site, no build command is needed
+  # No build command needed for static site
   command = ""
   
-  # Publish from the root directory
-  publish = "."
+  # Publish from the root directory (where your files are)
+  publish = "./"
 
 [build.environment]
-  # Node version for any npm operations
   NODE_VERSION = "18.17.0"
 
-# Redirect all routes to index.html for single page app behavior
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-  force = false
-
-# Security headers
+# Headers for security and caching
 [[headers]]
   for = "/*"
   [headers.values]
@@ -31,38 +23,23 @@
     Referrer-Policy = "no-referrer"
     Content-Security-Policy = "default-src 'self' https: data: 'unsafe-inline' 'unsafe-eval'"
 
-# Cache control for static assets
 [[headers]]
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# Specific headers for JavaScript files
 [[headers]]
   for = "/*.js"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
-    Content-Type = "text/javascript; charset=UTF-8"
 
-# Specific headers for CSS files
 [[headers]]
   for = "/*.css"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
-    Content-Type = "text/css; charset=UTF-8"
 
-# Custom 404 page (optional - create a 404.html if needed)
-# [[redirects]]
-#   from = "/*"
-#   to = "/404.html"
-#   status = 404
-
-# Environment context specific settings
-[context.production]
-  command = ""
-
-[context.deploy-preview]
-  command = ""
-
-[context.branch-deploy]
-  command = ""
+# SPA redirect
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
